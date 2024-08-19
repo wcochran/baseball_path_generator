@@ -46,7 +46,7 @@ class BaseballPathGenerator {
             }
             let K3 = F(t+h2, Y2)
             let Y3 = (0..<N).map {i -> Double in
-                return X[i] + h2*K3[i]
+                return X[i] + h*K3[i]
             }
             let K4 = F(t+h, Y3)
             for i in 0..<N {
