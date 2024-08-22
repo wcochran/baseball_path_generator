@@ -70,7 +70,7 @@ class BaseballPathGenerator {
         return X[2] < 0
     }
 
-    private static let g = 32.0  // acceleration due to gravity (ft/sec)
+    private static let g = 32.0  // acceleration due to gravity (ft/sec^2)
 
     //
     // Constant air resistance
@@ -92,13 +92,14 @@ class BaseballPathGenerator {
     }
 
     //
-    // Compute baseball path
+    // Compute baseball 2D path
     //
-    static func path(initialSpeedFeetPerSec v0: Double,
-                     initialAngleDegrees angle: Double,
-                     initialHeightFeet y0 : Double = 3.0) -> (time: Double, path:[(x: Double, y: Double)]) {
+    static func path2D(initialSpeedFeetPerSec v0: Double,
+                       initialAngleDegrees angle: Double,
+                       initialHeightFeet y0 : Double = 3.0) -> (time: Double, path:[(x: Double, y: Double)]) {
         assert(v0 > 0)
         assert(y0 > 0)
+        assert(0 < angle && angle < 90)
 
         //
         // Height of ball without wind resistance:
@@ -126,6 +127,36 @@ class BaseballPathGenerator {
             return (x:X[0], y:X[2])
         }
         return (time: soln.time, path: path)
+    }
+
+    //
+    // v0 : speed of ball off the bat (ft/sec)
+    // verticalAngle : 0 < initial trajectory < 90
+    // 0 <= horzAngle <= 90 for fairball (else foul ball)
+    //
+    static func path(initialSpeedFeetPerSec v0: Double,
+                     initialVerticalAngleDegrees vertAngle: Double,
+                     angleFromFirstBaseDegrees horzAngle: Double,
+                     initialHeightFeet y0: Double = 3.0) -> (time: Double, path:[simd_float3]) {
+        assert(v0 > 0)
+        assert(y0 > 0)
+        assert(0 < vertAngle && vertAngle < 90)
+
+        let path2D = Self.path2D(initialSpeedFeetPerSec: v0,
+                                 initialAngleDegrees: vertAngle,
+                                 initialHeightFeet: y0)
+
+        let theta = horzAngle * Double.pi / 180
+        let cos_theta = cos(theta)
+        let sin_theta = sin(theta)
+        let path = path2D.path.map {coord -> simd_float3 in
+            let x = coord.x * cos_theta
+            let y = coord.x * sin_theta
+            let z = coord.y
+            return simd_float3(x: Float(x), y: Float(y), z: Float(z))
+        }
+
+        return (time: path2D.time, path: path)
     }
 
 }

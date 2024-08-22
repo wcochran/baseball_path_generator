@@ -11,8 +11,8 @@ let v0 = 208.0    // feet per sec
 let angle = 43.0  // degrees
 print("# v0 = \(v0), angle = \(angle)")
 
-let path = BaseballPathGenerator.path(initialSpeedFeetPerSec: v0,
-                                      initialAngleDegrees: angle)
+let path = BaseballPathGenerator.path2D(initialSpeedFeetPerSec: v0,
+                                        initialAngleDegrees: angle)
 
 print("# time = \(path.time)")
 for point in path.path {
